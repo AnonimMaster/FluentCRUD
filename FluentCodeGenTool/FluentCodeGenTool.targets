@@ -1,0 +1,13 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Target Name="RunFluentCodeGen" BeforeTargets="BeforeBuild">
+        <!-- Выполняем инструмент генерации кода -->
+        <Exec Command="echo $(MSBuildThisFileDirectory)FluentCodeGenTool.dll" />
+        <Exec Command="echo $(TargetPath)" />
+        <Exec Command="dotnet &quot;$(MSBuildThisFileDirectory)FluentCodeGenTool.dll&quot; &quot;$(TargetPath)&quot; &quot;E:\Rider Projects\FluentCRUD\FluentCRUD.Tool.Example\Generated&quot;" />
+
+        <!-- Добавляем сгенерированный код в проект -->
+        <ItemGroup>
+            <Compile Include="$(IntermediateOutputPath)GeneratedCode.cs" />
+        </ItemGroup>
+    </Target>
+</Project>
