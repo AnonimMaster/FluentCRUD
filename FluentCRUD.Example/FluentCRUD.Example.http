@@ -1,0 +1,6 @@
+@FluentCRUD.Example_HostAddress = http://localhost:5063
+
+GET {{FluentCRUD.Example_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
