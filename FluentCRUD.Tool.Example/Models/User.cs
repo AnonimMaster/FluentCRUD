@@ -1,18 +1,24 @@
-﻿using FluentCodeGenTool;
-using FluentCodeGenTool.Abstractions;
+﻿using FluentCodeGenTool.Abstractions;
+using FluentCRUD.Abstraction;
 using FluentCRUD.Tool.Example.Generators;
 
 namespace FluentCRUD.Tool.Example.Models;
 
 public class User
 {
+	public Guid Id { get; set; }
+	public string Name { get; set; } = "";
+	public string Password { get; set; } = "";
+	
 	internal class Configurator: IModelGenerationConfigurator
 	{
-		public void Configuration(GenerationPipeline builder)
+		public void Configuration(GenerationPipeline pipeline)
 		{
-			builder
-				.WithNameSpace("FluentCRUD")
-				.AddStep(new ProxyGenerator());
+			pipeline
+				.Step<ProxyGenerator>(step => step.For<User>(user =>
+				{
+					user.Property(a => a.Id).Ignore();
+				}));
 		}
 	}
 }

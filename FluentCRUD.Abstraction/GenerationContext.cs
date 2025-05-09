@@ -1,11 +1,7 @@
-﻿namespace FluentCodeGenTool;
+﻿namespace FluentCRUD.Abstraction;
 
 public class GenerationContext
-{
-	public Type ModelType { get; set; }
-	public string TypeName { get; set; }
-	public string Namespace { get; set; }
-	public string InputFilePath { get; set; }
+{ 
 	public string OutputFilePath { get; set; }
 	
 	public List<GenerationFile> Files { get; } = new();

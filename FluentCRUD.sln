@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCodeGenTool", "Fluent
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCRUD.Tool.Example", "FluentCRUD.Tool.Example\FluentCRUD.Tool.Example.csproj", "{4AA104AF-B030-4CA3-B2A0-C47ADE62B436}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCRUD.Abstraction", "FluentCRUD.Abstraction\FluentCRUD.Abstraction.csproj", "{8C7F0DA1-179A-4705-822B-3B35721EF2C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCRUD.Core", "FluentCRUD.Core\FluentCRUD.Core.csproj", "{2C4B66F3-8198-42B1-9FE0-5B6E320947C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{4AA104AF-B030-4CA3-B2A0-C47ADE62B436}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4AA104AF-B030-4CA3-B2A0-C47ADE62B436}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4AA104AF-B030-4CA3-B2A0-C47ADE62B436}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C7F0DA1-179A-4705-822B-3B35721EF2C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C7F0DA1-179A-4705-822B-3B35721EF2C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C7F0DA1-179A-4705-822B-3B35721EF2C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C7F0DA1-179A-4705-822B-3B35721EF2C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C4B66F3-8198-42B1-9FE0-5B6E320947C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C4B66F3-8198-42B1-9FE0-5B6E320947C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C4B66F3-8198-42B1-9FE0-5B6E320947C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C4B66F3-8198-42B1-9FE0-5B6E320947C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

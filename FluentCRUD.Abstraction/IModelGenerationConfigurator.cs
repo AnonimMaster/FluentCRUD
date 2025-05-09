@@ -1,4 +1,6 @@
-﻿namespace FluentCodeGenTool.Abstractions;
+﻿using FluentCRUD.Abstraction;
+
+namespace FluentCodeGenTool.Abstractions;
 
 public interface IModelGenerationConfigurator
 {

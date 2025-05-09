@@ -13,6 +13,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\FluentCodeGenTool\FluentCodeGenTool.csproj" />
+      <ProjectReference Include="..\FluentCRUD.Core\FluentCRUD.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
