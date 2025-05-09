@@ -1,4 +1,6 @@
-﻿namespace FluentCRUD.Abstraction;
+﻿using FluentCodeGenTool.Property;
+
+namespace FluentCRUD.Abstraction;
 
 public class StepContext
 {

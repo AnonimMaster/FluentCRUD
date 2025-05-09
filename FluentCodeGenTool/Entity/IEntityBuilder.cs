@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using FluentCodeGenTool.Property;
 
 namespace FluentCRUD.Abstraction;
 

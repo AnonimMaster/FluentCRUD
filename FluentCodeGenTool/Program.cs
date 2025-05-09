@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
-using FluentCodeGenTool;
 using FluentCodeGenTool.Abstractions;
+using FluentCRUD.Abstraction;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 if (args.Length < 2)
 {
@@ -23,21 +25,51 @@ foreach (var modelType  in asm.GetTypes())
 
 	if (Activator.CreateInstance(mapType) is not IModelGenerationConfigurator mapInstance)
 		continue;
-	
-	var context = new GenerationContext
-	{
-		ModelType = modelType
-	};
+
+	var context = new GenerationContext(outputPath);
 
 	var pipeline = new GenerationPipeline(context);
 	mapInstance.Configuration(pipeline);
-	var generationContext = pipeline.Build();
+	context = pipeline.ExecuteAll(context);
 	
-	foreach (var generationFile in generationContext.Files)
+	foreach (var generationFile in context.Files)
 	{
 		Directory.CreateDirectory(generationFile.OutputFilePath);
 		var filePath = Path.Combine(generationFile.OutputFilePath, $"{generationFile.FileName}.g.cs");
 		File.WriteAllText(filePath, generationFile.Contents);
-		Console.WriteLine($"Generated: {filePath}");
+	}
+
+	foreach (var generationFile in context.Files)
+	{
+		var filePath = Path.Combine(generationFile.OutputFilePath, $"{generationFile.FileName}.g.cs");
+		
+		// === Проверка валидности файла через Roslyn ===
+		var syntaxTree = CSharpSyntaxTree.ParseText(generationFile.Contents);
+		var compilation = CSharpCompilation.Create("Validation")
+			.AddSyntaxTrees(syntaxTree)
+			.AddReferences(
+				MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
+				// Можно добавить другие стандартные референсы если нужно
+			)
+			.WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+		using var ms = new MemoryStream();
+		var result = compilation.Emit(ms);
+
+		if (!result.Success)
+		{
+			File.Delete(filePath);
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine($"Invalid file removed: {filePath}");
+			foreach (var diag in result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error))
+			{
+				Console.WriteLine($"[Error] {diag.GetMessage()}");
+			}
+			Console.ResetColor();
+		}
+		else
+		{
+			Console.WriteLine($"Generated: {filePath}");
+		}
 	}
 }

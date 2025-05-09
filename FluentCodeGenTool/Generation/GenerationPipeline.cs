@@ -28,7 +28,7 @@ public class GenerationPipeline
 	/// <summary>
 	/// Запуск всех зарегистрированных шагов.
 	/// </summary>
-	public void ExecuteAll()
+	internal GenerationContext ExecuteAll(GenerationContext context)
 	{
 		foreach (var obj in _stepBuilders)
 		{
@@ -46,9 +46,11 @@ public class GenerationPipeline
 			// Выполняем шаг для каждой сущности
 			foreach (var ctx in contexts)
 			{
-				step.Generate(ctx);
+				context = step.Generate(ctx, context);
 			}
 		}
+
+		return context;
 	}
 }
 

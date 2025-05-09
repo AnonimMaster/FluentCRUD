@@ -8,16 +8,12 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.14"/>
+        <PackageReference Include="Scriban" Version="6.2.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\FluentCodeGenTool\FluentCodeGenTool.csproj" />
-      <ProjectReference Include="..\FluentCRUD.Core\FluentCRUD.Core.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Generated\" />
     </ItemGroup>
 
 </Project>

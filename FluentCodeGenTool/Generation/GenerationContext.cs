@@ -1,12 +1,17 @@
 ﻿namespace FluentCRUD.Abstraction;
 
 public class GenerationContext
-{ 
-	public string OutputFilePath { get; set; }
-	
-	public List<GenerationFile> Files { get; } = new();
+{
+	public GenerationContext(string outputFilePath)
+	{
+		OutputFilePath = outputFilePath;
+	}
 
-	public void AddFile(string fileName, string content, string outputFilePath = "")
+	public string OutputFilePath { get; }
+	
+	public List<GenerationFile> Files { get; } = [];
+
+	public GenerationContext AddFile(string fileName, string content, string outputFilePath = "")
 	{
 		Files.Add(new GenerationFile()
 		{
@@ -14,6 +19,8 @@ public class GenerationContext
 			OutputFilePath = string.IsNullOrEmpty(outputFilePath) ? OutputFilePath : outputFilePath,
 			Contents =content
 		});
+
+		return this;
 	}
 }
 
