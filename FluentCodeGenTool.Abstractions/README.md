@@ -73,4 +73,4 @@ Include this package in your model or domain project to define how code should b
 
 ## License
 
-MIT
+MIT License — see [LICENSE](./LICENSE) for details.

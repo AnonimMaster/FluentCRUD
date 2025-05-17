@@ -35,13 +35,13 @@ dotnet tool install --global FluentCodeGenTool
 ## 🛠️ Usage
 
 ```bash
-FluentCodeGenTool <AssemblyPath> <OutputDirectory>
+fluentcodegen <AssemblyPath> <OutputDirectory>
 ```
 
 Example:
 
 ```bash
-FluentCodeGenTool ./MyProject/bin/Debug/net6.0/MyProject.dll ./Generated
+FluentCodeGenTool C:/MyProject/bin/Debug/net6.0/MyProject.dll C:/MyProject/Generated
 ```
 
 ## 📚 How It Works
