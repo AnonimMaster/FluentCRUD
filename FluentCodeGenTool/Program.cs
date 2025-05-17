@@ -7,159 +7,172 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 public static class Program
 {
-    private static Assembly? _loadedAssembly;
-    private static string _assemblyPath;
+	private static Assembly? _loadedAssembly;
+	private static string _assemblyPath;
 
-    public static void Main(string[] args)
-    {
-        if (args.Length < 2)
-        {
-            Console.WriteLine("Usage: FluentCodeGenTool <AssemblyPath> <OutputPath>");
-            return;
-        }
+	public static void Main(string[] args)
+	{
+		if (args.Length < 2)
+		{
+			Console.WriteLine("Usage: FluentCodeGenTool <AssemblyPath> <OutputPath>");
+			return;
+		}
 
-        _assemblyPath = args[0];
-        var outputPath = args[1];
+		_assemblyPath = args[0];
+		var outputPath = args[1];
 
-        _loadedAssembly = Assembly.LoadFrom(_assemblyPath);
-        var context = new GenerationContext(outputPath);
+		AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
-        ProcessAssembly(_loadedAssembly, context);
-        InsertUsings(context);
-    }
+		_loadedAssembly = Assembly.LoadFrom(_assemblyPath);
+		var context = new GenerationContext(outputPath);
 
-    private static void ProcessAssembly(Assembly asm, IGenerationContext context)
-    {
-        foreach (var modelType in asm.GetTypes())
-        {
-            var mapType = modelType.GetNestedType("Configurator",
-                BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+		ProcessAssembly(_loadedAssembly, context);
+		InsertUsings(context);
 
-            if (mapType == null || !typeof(IModelGenerationConfigurator).IsAssignableFrom(mapType))
-                continue;
+		AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
+	}
 
-            if (Activator.CreateInstance(mapType) is not IModelGenerationConfigurator mapInstance)
-                continue;
+	private static Assembly? CurrentDomain_AssemblyResolve(object? sender, ResolveEventArgs args)
+	{
+		var assemblyName = new AssemblyName(args.Name);
+		var dependencyPath = Path.Combine(Path.GetDirectoryName(_assemblyPath)!, assemblyName.Name + ".dll");
 
-            var pipeline = new GenerationPipeline(context);
-            mapInstance.Configuration(pipeline);
-            context = pipeline.ExecuteAll(context);
-            
-            foreach (var generationFile in context.Files)
-            {
-                Directory.CreateDirectory(generationFile.OutputFilePath);
-                var filePath = Path.Combine(generationFile.OutputFilePath, $"{generationFile.FileName}.g.cs");
+		if (File.Exists(dependencyPath))
+		{
+			return Assembly.LoadFrom(dependencyPath);
+		}
 
-                File.WriteAllText(filePath, generationFile.Contents);
-            }
-        }
-    }
+		return null;
+	}
 
-    private static void InsertUsings(GenerationContext context)
-    {
-        Dictionary<string, string> dictUsing = context.Files.ToDictionary(f => f.FileName, f => f.NameSpace);
-        
-        // 1. Готовим общую компиляцию из всех файлов
-    var syntaxTrees = context.Files
-        .Select(f => CSharpSyntaxTree.ParseText(f.Contents))
-        .ToList();
+	private static void ProcessAssembly(Assembly asm, IGenerationContext context)
+	{
+		foreach (var modelType in asm.GetTypes())
+		{
+			var mapType = modelType.GetNestedType("Configurator",
+				BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
 
-    var compilation = CSharpCompilation.Create("Generated")
-        .AddSyntaxTrees(syntaxTrees)
-        .AddReferences(
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location)
-        )
-        .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+			if (mapType == null || !typeof(IModelGenerationConfigurator).IsAssignableFrom(mapType))
+				continue;
 
-    foreach (var file in context.Files)
-    {
-        var tree = syntaxTrees.First(t => t.ToString() == file.Contents);
-        var root = tree.GetRoot() as CompilationUnitSyntax;
-        if (root == null) continue;
+			if (Activator.CreateInstance(mapType) is not IModelGenerationConfigurator mapInstance)
+				continue;
 
-        var semanticModel = compilation.GetSemanticModel(tree);
+			var pipeline = new GenerationPipeline(context);
+			mapInstance.Configuration(pipeline);
+			context = pipeline.ExecuteAll(context);
 
-        var classes = root.DescendantNodes()
-            .OfType<ClassDeclarationSyntax>()
-            .Distinct();
+			foreach (var generationFile in context.Files)
+			{
+				Directory.CreateDirectory(generationFile.OutputFilePath);
+				var filePath = Path.Combine(generationFile.OutputFilePath, $"{generationFile.FileName}.g.cs");
 
-        var usings = new HashSet<string> { "System" };
+				File.WriteAllText(filePath, generationFile.Contents);
+			}
+		}
+	}
 
-        foreach (var classDecl in classes)
-        {
-            var properties = classDecl.Members.OfType<PropertyDeclarationSyntax>();
+	private static void InsertUsings(GenerationContext context)
+	{
+		Dictionary<string, string> dictUsing = context.Files.ToDictionary(f => f.FileName, f => f.NameSpace);
 
-            foreach (var prop in properties)
-            {
-                var typeInfo = semanticModel.GetTypeInfo(prop.Type);
-                var symbol = typeInfo.Type as INamedTypeSymbol;
-                if (symbol == null) continue;
+		var syntaxTrees = context.Files
+			.Select(f => CSharpSyntaxTree.ParseText(f.Contents))
+			.ToList();
 
-                if (typeInfo.Type is IErrorTypeSymbol)
-                {
-                    if (prop.Type is GenericNameSyntax generic)
-                    {
-                        foreach (var typeArg in generic.TypeArgumentList.Arguments)
-                        {
-                            var typeArgInfo = semanticModel.GetTypeInfo(typeArg);
-                            if (dictUsing.TryGetValue(typeArgInfo.Type.Name, out var ns))
-                            {
-                                usings.Add(ns);
-                            }
-                        }
-                    }
-                    else if (dictUsing.TryGetValue(typeInfo.Type.Name, out var ns))
-                    {
-                        usings.Add(ns);
-                    }
-                    
-                }
-                else
-                {
-                    var ns = symbol.ContainingNamespace?.ToDisplayString();
-                    if (!string.IsNullOrEmpty(ns) && !symbol.ContainingNamespace.IsGlobalNamespace)
-                    {
-                        usings.Add(ns);
-                    }
-                }
-            }
-        }
+		var compilation = CSharpCompilation.Create("Generated")
+			.AddSyntaxTrees(syntaxTrees)
+			.AddReferences(
+				MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+				MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location)
+			)
+			.WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-        var unit = SyntaxFactory.CompilationUnit()
-            .AddUsings(usings
-                .OrderBy(u => u)
-                .Select(u => SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(u)))
-                .ToArray())
-            .NormalizeWhitespace();
+		foreach (var file in context.Files)
+		{
+			var tree = syntaxTrees.First(t => t.ToString() == file.Contents);
+			var root = tree.GetRoot() as CompilationUnitSyntax;
+			if (root == null) continue;
 
-        var newFileContent = InsertUsingDirectives(file.Contents, unit.ToFullString());
+			var semanticModel = compilation.GetSemanticModel(tree);
 
-        var filePath = Path.Combine(file.OutputFilePath, $"{file.FileName}.g.cs");
-        File.WriteAllText(filePath, newFileContent);
-        Console.WriteLine($"✔ Inserted usings in: {filePath}");
-    }
-    }
-    
-    private static string InsertUsingDirectives(string fileContent, string newUsingsText)
-    {
-        var tree = CSharpSyntaxTree.ParseText(fileContent);
-        var root = tree.GetRoot() as CompilationUnitSyntax;
-        if (root == null)
-            throw new Exception("Failed to parse file.");
+			var classes = root.DescendantNodes()
+				.OfType<ClassDeclarationSyntax>()
+				.Distinct();
 
-        // Парсим новый текст using-ов как отдельное синтаксическое дерево
-        var usingsTree = CSharpSyntaxTree.ParseText(newUsingsText);
-        var usingsRoot = usingsTree.GetRoot() as CompilationUnitSyntax;
-        if (usingsRoot == null)
-            throw new Exception("Failed to parse usings.");
+			var usings = new HashSet<string> { "System" };
 
-        var newUsings = usingsRoot.Usings;
+			foreach (var classDecl in classes)
+			{
+				var properties = classDecl.Members.OfType<PropertyDeclarationSyntax>();
 
-        // Заменяем using-и
-        var newRoot = root.WithUsings(newUsings);
+				foreach (var prop in properties)
+				{
+					var typeInfo = semanticModel.GetTypeInfo(prop.Type);
+					var symbol = typeInfo.Type as INamedTypeSymbol;
+					if (symbol == null) continue;
 
-        var formatted = newRoot.NormalizeWhitespace().ToFullString();
-        return formatted;
-    }
+					if (typeInfo.Type is IErrorTypeSymbol)
+					{
+						if (prop.Type is GenericNameSyntax generic)
+						{
+							foreach (var typeArg in generic.TypeArgumentList.Arguments)
+							{
+								var typeArgInfo = semanticModel.GetTypeInfo(typeArg);
+								if (dictUsing.TryGetValue(typeArgInfo.Type.Name, out var ns))
+								{
+									usings.Add(ns);
+								}
+							}
+						}
+						else if (dictUsing.TryGetValue(typeInfo.Type.Name, out var ns))
+						{
+							usings.Add(ns);
+						}
+					}
+					else
+					{
+						var ns = symbol.ContainingNamespace?.ToDisplayString();
+						if (!string.IsNullOrEmpty(ns) && !symbol.ContainingNamespace.IsGlobalNamespace)
+						{
+							usings.Add(ns);
+						}
+					}
+				}
+			}
+
+			var unit = SyntaxFactory.CompilationUnit()
+				.AddUsings(usings
+					.OrderBy(u => u)
+					.Select(u => SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(u)))
+					.ToArray())
+				.NormalizeWhitespace();
+
+			var newFileContent = InsertUsingDirectives(file.Contents, unit.ToFullString());
+
+			var filePath = Path.Combine(file.OutputFilePath, $"{file.FileName}.g.cs");
+			File.WriteAllText(filePath, newFileContent);
+			Console.WriteLine($"✔ Inserted usings in: {filePath}");
+		}
+	}
+
+	private static string InsertUsingDirectives(string fileContent, string newUsingsText)
+	{
+		var tree = CSharpSyntaxTree.ParseText(fileContent);
+		var root = tree.GetRoot() as CompilationUnitSyntax;
+		if (root == null)
+			throw new Exception("Failed to parse file.");
+
+		var usingsTree = CSharpSyntaxTree.ParseText(newUsingsText);
+		var usingsRoot = usingsTree.GetRoot() as CompilationUnitSyntax;
+		if (usingsRoot == null)
+			throw new Exception("Failed to parse usings.");
+
+		var newUsings = usingsRoot.Usings;
+
+		var newRoot = root.WithUsings(newUsings);
+
+		var formatted = newRoot.NormalizeWhitespace().ToFullString();
+		return formatted;
+	}
 }
