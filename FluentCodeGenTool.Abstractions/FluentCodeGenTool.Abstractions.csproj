@@ -8,7 +8,7 @@
 
         <!-- NuGet metadata -->
         <PackageId>FluentCodeGenTool.Abstractions</PackageId>
-        <Version>0.0.1</Version>
+        <Version>0.0.2</Version>
         <Authors>Kirill Vladimirov</Authors>
         <Company>SuccubHunters Inc.</Company>
         <Description>Abstractions for defining models and code generation steps used with FluentCodeGenTool CLI.</Description>
