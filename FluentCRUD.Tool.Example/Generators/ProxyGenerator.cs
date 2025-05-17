@@ -16,11 +16,8 @@ public class ProxyGenerator: IGenerationStep
 			throw new InvalidOperationException($"Template errors: {string.Join(", ", template.Messages.Select(m => m.Message))}");
 		}
 		
-		var usings = UsingCollector.CollectUsings(context.Properties.Select(p => p.PropertyInfo));
-		
 		var model = new
 		{
-			usings,
 			entity = new
 			{
 				name = context.EntityType.Name,
