@@ -34,6 +34,6 @@ public class ProxyGenerator: IGenerationStep
 		
 		var result = template.Render(model);
 		
-		return generationContext.AddFile($"{context.EntityType.Name}Proxy",result);
+		return generationContext.AddFile($"{context.EntityType.Name}Proxy",context.Namespace,result);
 	}
 }

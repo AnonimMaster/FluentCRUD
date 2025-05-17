@@ -57,55 +57,88 @@ public static class Program
 
     private static void InsertUsings(GenerationContext context)
     {
-        foreach (var file in context.Files)
+        Dictionary<string, string> dictUsing = context.Files.ToDictionary(f => f.FileName, f => f.NameSpace);
+        
+        // 1. Готовим общую компиляцию из всех файлов
+    var syntaxTrees = context.Files
+        .Select(f => CSharpSyntaxTree.ParseText(f.Contents))
+        .ToList();
+
+    var compilation = CSharpCompilation.Create("Generated")
+        .AddSyntaxTrees(syntaxTrees)
+        .AddReferences(
+            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location)
+        )
+        .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+    foreach (var file in context.Files)
+    {
+        var tree = syntaxTrees.First(t => t.ToString() == file.Contents);
+        var root = tree.GetRoot() as CompilationUnitSyntax;
+        if (root == null) continue;
+
+        var semanticModel = compilation.GetSemanticModel(tree);
+
+        var classes = root.DescendantNodes()
+            .OfType<ClassDeclarationSyntax>()
+            .Distinct();
+
+        var usings = new HashSet<string> { "System" };
+
+        foreach (var classDecl in classes)
         {
-            // Используем Roslyn для анализа типов в файле
-            var syntaxTree = CSharpSyntaxTree.ParseText(file.Contents);
-            var root = syntaxTree.GetRoot() as CompilationUnitSyntax;
+            var properties = classDecl.Members.OfType<PropertyDeclarationSyntax>();
 
-            var semanticModel = CSharpCompilation.Create("Validation")
-                .AddSyntaxTrees(syntaxTree)
-                .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
-                .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-                .GetSemanticModel(syntaxTree);
-
-            // Проходим по всем типам в файле
-            var classes = root.DescendantNodes()
-                .OfType<ClassDeclarationSyntax>()
-                .Where(t => t != null)
-                .Distinct();
-            
-            var usings = new HashSet<string> { "System" };
-
-            // Добавляем нужные using для каждого типа
-            foreach (var classDecl in classes)
+            foreach (var prop in properties)
             {
-                var properties = classDecl.Members.OfType<PropertyDeclarationSyntax>();
-                
-                foreach (var prop in properties)
-                {
-                    var typeInfo = semanticModel.GetTypeInfo(prop.Type);
-                    var symbol = typeInfo.Type as INamedTypeSymbol;
-                    if (symbol == null) continue;
+                var typeInfo = semanticModel.GetTypeInfo(prop.Type);
+                var symbol = typeInfo.Type as INamedTypeSymbol;
+                if (symbol == null) continue;
 
-                    if (!symbol.ContainingNamespace.IsGlobalNamespace)
-                        usings.Add(symbol.ContainingNamespace.ToDisplayString());
+                if (typeInfo.Type is IErrorTypeSymbol)
+                {
+                    if (prop.Type is GenericNameSyntax generic)
+                    {
+                        foreach (var typeArg in generic.TypeArgumentList.Arguments)
+                        {
+                            var typeArgInfo = semanticModel.GetTypeInfo(typeArg);
+                            if (dictUsing.TryGetValue(typeArgInfo.Type.Name, out var ns))
+                            {
+                                usings.Add(ns);
+                            }
+                        }
+                    }
+                    else if (dictUsing.TryGetValue(typeInfo.Type.Name, out var ns))
+                    {
+                        usings.Add(ns);
+                    }
+                    
+                }
+                else
+                {
+                    var ns = symbol.ContainingNamespace?.ToDisplayString();
+                    if (!string.IsNullOrEmpty(ns) && !symbol.ContainingNamespace.IsGlobalNamespace)
+                    {
+                        usings.Add(ns);
+                    }
                 }
             }
-            
-            var unit = SyntaxFactory.CompilationUnit()
-                .AddUsings(usings
-                    .Select(u => SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(u)))
-                    .ToArray())
-                .NormalizeWhitespace();
-            
-            var codeResult = unit.ToFullString();
-            
-            var filePath = Path.Combine(file.OutputFilePath, $"{file.FileName}.g.cs");
-            var newFileContent = InsertUsingDirectives(file.Contents, codeResult);
-            File.WriteAllText(filePath, newFileContent);
-            Console.WriteLine($"Inserted using statements in: {file}");
         }
+
+        var unit = SyntaxFactory.CompilationUnit()
+            .AddUsings(usings
+                .OrderBy(u => u)
+                .Select(u => SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(u)))
+                .ToArray())
+            .NormalizeWhitespace();
+
+        var newFileContent = InsertUsingDirectives(file.Contents, unit.ToFullString());
+
+        var filePath = Path.Combine(file.OutputFilePath, $"{file.FileName}.g.cs");
+        File.WriteAllText(filePath, newFileContent);
+        Console.WriteLine($"✔ Inserted usings in: {filePath}");
+    }
     }
     
     private static string InsertUsingDirectives(string fileContent, string newUsingsText)

@@ -11,11 +11,12 @@ public class GenerationContext
 	
 	public List<GenerationFile> Files { get; } = [];
 
-	public GenerationContext AddFile(string fileName, string content, string outputFilePath = "")
+	public GenerationContext AddFile(string fileName, string @namespace, string content, string outputFilePath = "")
 	{
 		Files.Add(new GenerationFile()
 		{
 			FileName = fileName,
+			NameSpace = @namespace,
 			OutputFilePath = string.IsNullOrEmpty(outputFilePath) ? OutputFilePath : outputFilePath,
 			Contents =content
 		});
@@ -27,6 +28,7 @@ public class GenerationContext
 public class GenerationFile
 {
 	public string FileName { get; set; }
+	public string NameSpace { get; set; }
 	public string OutputFilePath { get; set; }
 	public string Contents { get; set; }
 }

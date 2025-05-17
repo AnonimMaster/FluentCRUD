@@ -18,7 +18,7 @@ public class Company
 				.Step<ProxyGenerator>(step => step.For<Company>(entity =>
 				{
 					entity.WithNamespace("FluentCRUD.Tool.Example");
-					entity.Property(a => a.Users).Type("List<UserProxy>");
+					entity.Property(a => a.Users).Type("UserProxy");
 				}));
 		}
 	}
