@@ -4,5 +4,5 @@ namespace FluentCodeGenTool.Abstractions;
 
 public interface IModelGenerationConfigurator
 {
-	public void Configuration(GenerationPipeline builder);
+	public void Configuration(IGenerationPipeline builder);
 }

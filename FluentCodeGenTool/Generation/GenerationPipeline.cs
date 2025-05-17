@@ -1,13 +1,14 @@
 ﻿using System.Reflection;
+using FluentCodeGenTool.Abstractions;
 
 namespace FluentCRUD.Abstraction;
 
-public class GenerationPipeline
+public class GenerationPipeline: IGenerationPipeline
 {
-	private readonly GenerationContext _baseContext;
+	private readonly IGenerationContext _baseContext;
 	private readonly List<object> _stepBuilders = new();
 	
-	public GenerationPipeline(GenerationContext baseContext)
+	public GenerationPipeline(IGenerationContext baseContext)
 	{
 		_baseContext = baseContext;
 	}
@@ -15,7 +16,7 @@ public class GenerationPipeline
 	/// <summary>
 	/// Регистрирует новый шаг генерации с конфигурацией.
 	/// </summary>
-	public GenerationPipeline Step<TStep>(Action<StepBuilder<TStep>> configure)
+	public IGenerationPipeline Step<TStep>(Action<IStepBuilder<TStep>> configure)
 		where TStep : IGenerationStep, new()
 	{
 		var step = new TStep();
@@ -28,7 +29,7 @@ public class GenerationPipeline
 	/// <summary>
 	/// Запуск всех зарегистрированных шагов.
 	/// </summary>
-	internal GenerationContext ExecuteAll(GenerationContext context)
+	public IGenerationContext ExecuteAll(IGenerationContext context)
 	{
 		foreach (var obj in _stepBuilders)
 		{

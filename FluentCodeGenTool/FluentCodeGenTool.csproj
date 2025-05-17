@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
 
         <!-- NuGet metadata -->
         <PackageId>FluentCodeGenTool</PackageId>
@@ -15,6 +16,8 @@
         <Description>A flexible and extensible code generation tool built on Roslyn. Designed for use with annotated models, this CLI utility scans compiled .NET assemblies and generates boilerplate or proxy code based on embedded configuration logic. Suitable for modular systems, layered architectures, or rapid prototyping workflows.</Description>
         <PackageTags>codegen generator Roslyn CLI sourcegen tool</PackageTags>
         <RepositoryUrl>https://github.com/SuccubHunter/FluentCodeGenTool</RepositoryUrl>
+        <IncludePackageReadmeFile>true</IncludePackageReadmeFile>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -25,6 +28,10 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.CodeAnalysis" Version="4.13.0" />
       <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FluentCodeGenTool.Abstractions\FluentCodeGenTool.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>

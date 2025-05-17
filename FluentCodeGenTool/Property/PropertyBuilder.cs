@@ -1,8 +1,9 @@
 ﻿using System.Reflection;
+using FluentCRUD.Abstraction;
 
 namespace FluentCodeGenTool.Property;
 
-public class PropertyBuilder
+public class PropertyBuilder: IPropertyBuilder
 {
 	public PropertyInfo PropertyInfo { get; }
 	public string? CustomName { get; private set; }
@@ -14,25 +15,25 @@ public class PropertyBuilder
 		PropertyInfo = pi;
 	}
 
-	public PropertyBuilder HasName(string name)
+	public IPropertyBuilder HasName(string name)
 	{
 		CustomName = name;
 		return this;
 	}
 
-	public PropertyBuilder Type(Type type)
+	public IPropertyBuilder Type(Type type)
 	{
 		CustomType = type.Name;
 		return this;
 	}
 	
-	public PropertyBuilder Type(string type)
+	public IPropertyBuilder Type(string type)
 	{
 		CustomType = type;
 		return this;
 	}
 
-	public PropertyBuilder Ignore(bool shouldIgnore = true)
+	public IPropertyBuilder Ignore(bool shouldIgnore = true)
 	{
 		Ignored = shouldIgnore;
 		return this;

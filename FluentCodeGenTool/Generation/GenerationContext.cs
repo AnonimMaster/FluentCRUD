@@ -1,6 +1,9 @@
-﻿namespace FluentCRUD.Abstraction;
+﻿using FluentCodeGenTool.Abstractions;
+using FluentCodeGenTool.Generation;
 
-public class GenerationContext
+namespace FluentCRUD.Abstraction;
+
+public class GenerationContext: IGenerationContext
 {
 	public GenerationContext(string outputFilePath)
 	{
@@ -9,9 +12,9 @@ public class GenerationContext
 
 	public string OutputFilePath { get; }
 	
-	public List<GenerationFile> Files { get; } = [];
+	public List<IGenerationFile> Files { get; } = [];
 
-	public GenerationContext AddFile(string fileName, string @namespace, string content, string outputFilePath = "")
+	public IGenerationContext AddFile(string fileName, string @namespace, string content, string outputFilePath = "")
 	{
 		Files.Add(new GenerationFile()
 		{
@@ -23,12 +26,4 @@ public class GenerationContext
 
 		return this;
 	}
-}
-
-public class GenerationFile
-{
-	public string FileName { get; set; }
-	public string NameSpace { get; set; }
-	public string OutputFilePath { get; set; }
-	public string Contents { get; set; }
 }

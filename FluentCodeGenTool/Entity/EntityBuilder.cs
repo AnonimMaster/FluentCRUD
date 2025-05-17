@@ -23,7 +23,7 @@ public class EntityBuilder<TEntity>: IEntityBuilder<TEntity>
 		}
 	}
 	
-	public PropertyBuilder Property<TProp>(Expression<Func<TEntity, TProp>> expr)
+	public IPropertyBuilder Property<TProp>(Expression<Func<TEntity, TProp>> expr)
 	{
 		var member = expr.Body is MemberExpression m ? m.Member
 			: expr.Body is UnaryExpression u && u.Operand is MemberExpression m2 ? m2.Member

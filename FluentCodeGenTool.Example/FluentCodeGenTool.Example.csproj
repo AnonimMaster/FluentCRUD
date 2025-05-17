@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\FluentCodeGenTool\FluentCodeGenTool.csproj" />
+      <ProjectReference Include="..\FluentCodeGenTool.Abstractions\FluentCodeGenTool.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>

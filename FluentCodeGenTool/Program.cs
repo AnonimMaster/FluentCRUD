@@ -28,7 +28,7 @@ public static class Program
         InsertUsings(context);
     }
 
-    private static void ProcessAssembly(Assembly asm, GenerationContext context)
+    private static void ProcessAssembly(Assembly asm, IGenerationContext context)
     {
         foreach (var modelType in asm.GetTypes())
         {

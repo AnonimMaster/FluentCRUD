@@ -3,7 +3,7 @@ using FluentCodeGenTool.Property;
 
 namespace FluentCRUD.Abstraction;
 
-public class StepBuilder<TStep> where TStep : IGenerationStep
+public class StepBuilder<TStep>: IStepBuilder<TStep> where TStep : IGenerationStep, new()
 {
 	public TStep Step { get; }
 	private readonly Dictionary<Type, object> _entities = new();
@@ -16,7 +16,7 @@ public class StepBuilder<TStep> where TStep : IGenerationStep
 	/// <summary>
 	/// Конфигурация генерации для сущности TEntity.
 	/// </summary>
-	public StepBuilder<TStep> For<TEntity>(Action<EntityBuilder<TEntity>> configure)
+	public IStepBuilder<TStep> For<TEntity>(Action<IEntityBuilder<TEntity>> configure)
 	{
 		if (!_entities.TryGetValue(typeof(TEntity), out var obj))
 		{
@@ -37,7 +37,7 @@ public class StepBuilder<TStep> where TStep : IGenerationStep
 		{
 			var entityType = kv.Key;
 			var builder = kv.Value;
-			var props = (IEnumerable<PropertyBuilder>)builder
+			var props = (IEnumerable<IPropertyBuilder>)builder
 				.GetType()
 				.GetProperty("Properties", BindingFlags.Instance | BindingFlags.Public)!
 				.GetValue(builder)!;

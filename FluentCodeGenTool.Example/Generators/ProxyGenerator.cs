@@ -1,4 +1,5 @@
 ﻿using FluentCodeGenTool;
+using FluentCodeGenTool.Abstractions;
 using FluentCRUD.Abstraction;
 using Scriban;
 
@@ -6,7 +7,7 @@ namespace FluentCRUD.Tool.Example.Generators;
 
 public class ProxyGenerator: IGenerationStep
 {
-	public GenerationContext Generate(StepContext context, GenerationContext generationContext)
+	public IGenerationContext Generate(IStepContext context, IGenerationContext generationContext)
 	{
 		var templateContent = File.ReadAllText("E:\\Rider Projects\\FluentCRUD\\FluentCodeGenTool.Example\\Templates\\ProxyTemplate.scriban");
 		var template = Template.Parse(templateContent);

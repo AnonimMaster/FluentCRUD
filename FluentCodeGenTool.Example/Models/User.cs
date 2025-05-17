@@ -12,7 +12,7 @@ public class User
 	
 	internal class Configurator: IModelGenerationConfigurator
 	{
-		public void Configuration(GenerationPipeline pipeline)
+		public void Configuration(IGenerationPipeline pipeline)
 		{
 			pipeline
 				.Step<ProxyGenerator>(step => step.For<User>(user =>
