@@ -4,6 +4,25 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+        <!-- NuGet metadata -->
+        <PackageId>FluentCodeGenTool.Abstractions</PackageId>
+        <Version>0.0.1</Version>
+        <Authors>Kirill Vladimirov</Authors>
+        <Company>SuccubHunters Inc.</Company>
+        <Description>Abstractions for defining models and code generation steps used with FluentCodeGenTool CLI.</Description>
+        <PackageTags>codegen cli fluent abstractions</PackageTags>
+        <RepositoryUrl>https://github.com/SuccubHunter/FluentCodeGenTool</RepositoryUrl>
+        <IncludePackageReadmeFile>true</IncludePackageReadmeFile>
+        <IncludeSymbols>true</IncludeSymbols>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
 
 </Project>
