@@ -17,7 +17,7 @@ public class Company
 			pipeline
 				.Step<ProxyGenerator>(step => step.For<Company>(entity =>
 				{
-					entity.WithNamespace("FluentCRUD.Tool.Example");
+					entity.WithNamespace("FluentCodeGenTool.Example");
 					entity.Property(a => a.Users).Type("UserProxy");
 				}));
 		}

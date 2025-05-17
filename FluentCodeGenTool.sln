@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCodeGenTool", "FluentCodeGenTool\FluentCodeGenTool.csproj", "{6ACA1009-3DC8-44B3-9D00-7B140F913380}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCRUD.Tool.Example", "FluentCRUD.Tool.Example\FluentCRUD.Tool.Example.csproj", "{4AA104AF-B030-4CA3-B2A0-C47ADE62B436}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCodeGenTool.Example", "FluentCodeGenTool.Example\FluentCodeGenTool.Example.csproj", "{4AA104AF-B030-4CA3-B2A0-C47ADE62B436}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

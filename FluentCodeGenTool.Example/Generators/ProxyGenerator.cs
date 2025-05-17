@@ -8,7 +8,7 @@ public class ProxyGenerator: IGenerationStep
 {
 	public GenerationContext Generate(StepContext context, GenerationContext generationContext)
 	{
-		var templateContent = File.ReadAllText("E:\\Rider Projects\\FluentCRUD\\FluentCRUD.Tool.Example\\Templates\\ProxyTemplate.scriban");
+		var templateContent = File.ReadAllText("E:\\Rider Projects\\FluentCRUD\\FluentCodeGenTool.Example\\Templates\\ProxyTemplate.scriban");
 		var template = Template.Parse(templateContent);
 		
 		if (template.HasErrors)

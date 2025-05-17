@@ -3,7 +3,7 @@
         <!-- Выполняем инструмент генерации кода -->
         <Exec Command="echo $(MSBuildThisFileDirectory)FluentCodeGenTool.dll" />
         <Exec Command="echo $(TargetPath)" />
-        <Exec Command="dotnet &quot;$(MSBuildThisFileDirectory)FluentCodeGenTool.dll&quot; &quot;$(TargetPath)&quot; &quot;E:\Rider Projects\FluentCRUD\FluentCRUD.Tool.Example\Generated&quot;" />
+        <Exec Command="dotnet &quot;$(MSBuildThisFileDirectory)FluentCodeGenTool.dll&quot; &quot;$(TargetPath)&quot; &quot;E:\Rider Projects\FluentCRUD\FluentCodeGenTool.Example\Generated&quot;" />
 
         <!-- Добавляем сгенерированный код в проект -->
         <ItemGroup>

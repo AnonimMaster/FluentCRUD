@@ -5,6 +5,21 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+        <!-- NuGet metadata -->
+        <PackageId>FluentCodeGenTool</PackageId>
+        <Version>0.0.1</Version>
+        <Authors>Kirill Vladimirov</Authors>
+        <Company>SuccubHunters Inc.</Company>
+        <Description>A flexible and extensible code generation tool built on Roslyn. Designed for use with annotated models, this CLI utility scans compiled .NET assemblies and generates boilerplate or proxy code based on embedded configuration logic. Suitable for modular systems, layered architectures, or rapid prototyping workflows.</Description>
+        <PackageTags>codegen generator Roslyn CLI sourcegen tool</PackageTags>
+        <RepositoryUrl>https://github.com/SuccubHunter/FluentCodeGenTool</RepositoryUrl>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>fluentcodegen</ToolCommandName>
     </PropertyGroup>
 
     <ItemGroup>
